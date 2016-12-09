@@ -22,8 +22,8 @@ private:
 	const std::string m_request;
 
 	std::string m_table;
-	bool m_has_condition;
-	std::string m_column;
-	std::string m_value;
+	bool m_has_filter;
+	std::string m_filter_column;
+	std::string m_filter_value;
 };
 

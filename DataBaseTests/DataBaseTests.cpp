@@ -132,6 +132,37 @@ namespace DataBaseTests
 		TEST_METHOD(SelectRows)
 		{
 			DataBase db;
+			db.AddTable("table1", { { "col1", "Int" },{ "col2", "Float" },{ "col3", "String" } });
+			std::vector<Table::row_type> table1_rows =
+			{
+				{ "10", "5.8", "Hello, world!" },
+				{ "20", "3.1", "Microsoft" },
+				{ "10", "234.1", "First method" },
+				{ "10", "12.65", "Second method" }
+			};
+			for (const Table::row_type& row : table1_rows)
+			{
+				db.AddRow("table1", row);
+			}
+
+			auto selection = db.Select("select from table1");
+
+			Assert::AreEqual(table1_rows.size(), selection->size());
+
+			int i = 0;
+			selection->ForEach([&table1_rows, &i]
+			(const Table::row_type& row) -> bool
+			{
+				Assert::IsTrue(table1_rows[i] == row);
+				++i;
+				return true;
+			});
+			Assert::AreEqual(table1_rows.size(), static_cast<size_t>(i));
+		}
+
+		TEST_METHOD(SelectRowsWithEqCondition)
+		{
+			DataBase db;
 			db.AddTable("table1", { { "col1", "Int" }, { "col2", "Float" }, { "col3", "String" } });
 			std::vector<Table::row_type> table1_rows =
 			{
@@ -140,6 +171,10 @@ namespace DataBaseTests
 				{ "10", "234.1", "First method" },
 				{ "10", "12.65", "Second method" }
 			};
+			for (const Table::row_type& row : table1_rows)
+			{
+				db.AddRow("table1", row);
+			}
 
 			auto selection = db.Select("select from table1 where col1 = 10");
 
@@ -154,6 +189,53 @@ namespace DataBaseTests
 				++i;
 				return true;
 			});
+			Assert::AreEqual(3, i);
+		}
+
+		TEST_METHOD(SelectRowsWithSubSelect)
+		{
+			DataBase db;
+
+			db.AddTable("books", { { "id", "Int" }, { "year", "Int" }, { "author", "String" } });
+			std::vector<Table::row_type> books_rows =
+			{
+				{ "1", "1892", "Crafter" },
+				{ "2", "1965", "Jones" },
+				{ "3", "2004", "Springer" },
+				{ "4", "1832", "Bafers" }
+			};
+			for (const Table::row_type& row : books_rows)
+			{
+				db.AddRow("books", row);
+			}
+
+			db.AddTable("students", { {"name", "String"}, {"book_id", "Int"} });
+			std::vector<Table::row_type> students_rows =
+			{
+				{ "Franklin", "2" },
+				{ "Jobs", "3" },
+				{ "Trump", "1" },
+				{ "White", "4" }
+			};
+			for (const Table::row_type& row : students_rows)
+			{
+				db.AddRow("students", row);
+			}
+
+			auto selection = db.Select("select from students where book_id = "
+									   "$(select books.id where author = Springer)");
+
+			Assert::AreEqual(static_cast<size_t>(1), selection->size());
+
+			int i = 0;
+			selection->ForEach([&students_rows, &i]
+			(const Table::row_type& row) -> bool
+			{
+				Assert::IsTrue(students_rows[1] == row);
+				++i;
+				return true;
+			});
+			Assert::AreEqual(1, i);
 		}
 	};
 }
