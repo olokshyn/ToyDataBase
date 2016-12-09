@@ -26,15 +26,15 @@ void Table::AddRow(const row_type& row)
 
 void Table::SelectRows(selection_type& result,
 					std::function<bool(const row_type& row)> selector,
-					const std::string& column_name_to_sort_by,
+					const std::string& sort_by_column,
 					bool sort_ascending) const
 {
 	columns_type::const_iterator column;
-	if (!column_name_to_sort_by.empty())
+	if (!sort_by_column.empty())
 	{
 		column = std::find_if(m_columns.begin(), m_columns.end(),
-			[&column_name_to_sort_by](const Column& col) -> 
-			bool { return col.GetName() == column_name_to_sort_by; });
+			[&sort_by_column](const Column& col) ->
+			bool { return col.GetName() == sort_by_column; });
 		if (column == m_columns.end())
 		{
 			throw std::runtime_error("Invalid name of the column to sort by");
@@ -49,7 +49,7 @@ void Table::SelectRows(selection_type& result,
 		}
 	}
 
-	if (!column_name_to_sort_by.empty())
+	if (!sort_by_column.empty())
 	{
 		const BaseType* column_type = column->GetType();
 		size_t column_index = column - m_columns.begin();

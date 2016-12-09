@@ -237,5 +237,73 @@ namespace DataBaseTests
 			});
 			Assert::AreEqual(1, i);
 		}
+
+		TEST_METHOD(SelectRowsWithSorting)
+		{
+			DataBase db;
+			db.AddTable("numbers", { { "index", "Int" }, { "value", "Int" } });
+			std::vector<Table::row_type> numbers_rows =
+			{
+				{ "1", "1" },
+				{ "1", "12" },
+				{ "1", "51" },
+				{ "1", "123" },
+				{ "5", "2" },
+				{ "1", "22" },
+				{ "7", "234" },
+				{ "8", "5" },
+				{ "1", "31" },
+				{ "10", "3" }
+			};
+			for (const Table::row_type& row : numbers_rows)
+			{
+				db.AddRow("numbers", row);
+			}
+
+			auto selection = db.Select("select from numbers sort by value asc");
+
+			Assert::AreEqual(numbers_rows.size(), selection->size());
+
+			int i = 0;
+			std::vector<int> indexes = { 0, 4, 9, 7, 1, 5, 8, 2, 3, 6 };
+			selection->ForEach([&numbers_rows, &indexes, &i]
+			(const Table::row_type& row) -> bool
+			{
+				Assert::IsTrue(numbers_rows[indexes[i]] == row);
+				++i;
+				return true;
+			});
+			Assert::AreEqual(numbers_rows.size(), static_cast<size_t>(i));
+
+			selection = db.Select("select from numbers sort by value desc");
+
+			Assert::AreEqual(numbers_rows.size(), selection->size());
+
+			i = 0;
+			std::reverse(indexes.begin(), indexes.end());
+			selection->ForEach([&numbers_rows, &indexes, &i]
+			(const Table::row_type& row) -> bool
+			{
+				Assert::IsTrue(numbers_rows[indexes[i]] == row);
+				++i;
+				return true;
+			});
+			Assert::AreEqual(numbers_rows.size(), static_cast<size_t>(i));
+
+			selection = db.Select("select from numbers sort by value where index = 1");
+
+			Assert::AreEqual(static_cast<size_t>(6), selection->size());
+
+			i = 0;
+			indexes = { 0, 1, 5, 8, 2, 3 };
+			selection->ForEach([&numbers_rows, &indexes, &i]
+			(const Table::row_type& row) -> bool
+			{
+				Assert::IsTrue(numbers_rows[indexes[i]] == row);
+				++i;
+				return true;
+			});
+			Assert::AreEqual(6, i);
+		}
 	};
 }

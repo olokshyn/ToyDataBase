@@ -47,7 +47,7 @@ public:
 
 	void SelectRows(selection_type& result,
 					std::function<bool(const row_type& row)> selector = {},
-					const std::string& column_name_to_sort_by = "",
+					const std::string& sort_by_column = "",
 					bool sort_ascending = true) const;
 
 private:

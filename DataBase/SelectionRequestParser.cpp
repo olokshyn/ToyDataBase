@@ -3,14 +3,26 @@
 #include <regex>
 #include <stdexcept>
 
-static std::regex g_request_regex("select\\s(?:from\\s)?(\\w+)(?:\\.(\\w+))?(?:\\swhere\\s(\\w+)\\s=\\s(.*))?");
+static std::regex g_request_regex("select\\s(?:from\\s)?(\\w+)(?:\\.(\\w+))?"
+								  "(?:\\ssort\\sby\\s(\\w+)\\s?(asc|desc)?)?"
+								  "(?:\\swhere\\s(\\w+)\\s=\\s(.*))?");
 /*
 0 - matched string
 1 - table name
 2 - mask column name, optional, only for sub-requests
-3 - filter column name, optional
-4 - filter value, optional
+3 - sort column name, optional
+4 - sort mode, optional, asc is default
+5 - filter column name, optional
+6 - filter value, optional
 */
+enum {
+	TABLE_I = 1,
+	MASK_COLUMN_I,
+	SORT_COLUMN_I,
+	SORT_MODE_I,
+	FILTER_COLUMN_I,
+	FILTER_VALUE_I
+};
 
 static std::regex g_sub_request_regex("\\$\\((.*)\\)");
 
@@ -20,11 +32,16 @@ SelectionRequestParser::SelectionRequestParser(const DataBase& db, const std::st
 }
 
 std::function<bool(const Table::row_type& row)>
-	SelectionRequestParser::BuildSelector(std::string& table_name)
+	SelectionRequestParser::BuildSelector(std::string& table_name,
+										  std::string& sort_by_column,
+										  bool& sort_ascending)
 {
 	parse(m_request, false);
 
 	table_name = m_table;
+	sort_by_column = m_sort_column;
+	sort_ascending = m_sort_mode == "asc";
+
 	if (!m_has_filter)
 	{
 		return {};
@@ -42,17 +59,33 @@ std::function<bool(const Table::row_type& row)>
 
 void SelectionRequestParser::parse(const std::string& request, bool sub_request)
 {
+	if (request.empty())
+	{
+		throw std::runtime_error("Cannot parse empty request");
+	}
+
 	std::smatch sm;
 	if (!std::regex_match(request, sm, g_request_regex))
 	{
 		throw std::runtime_error("Invalid request format");
 	}
 
-	std::string table_name = sm[1].str();
+	std::string table_name = sm[TABLE_I].str();
 	std::string mask_column;
-	if (sm[2].matched)
+	if (sm[MASK_COLUMN_I].matched)
 	{
-		mask_column = sm[2].str();
+		mask_column = sm[MASK_COLUMN_I].str();
+	}
+
+	std::string sort_column;
+	if (sm[SORT_COLUMN_I].matched)
+	{
+		sort_column = sm[SORT_COLUMN_I].str();
+	}
+	std::string sort_mode = "asc";
+	if (sm[SORT_MODE_I].matched)
+	{
+		sort_mode = sm[SORT_MODE_I].str();
 	}
 
 	if (!mask_column.empty() && !sub_request)
@@ -63,17 +96,23 @@ void SelectionRequestParser::parse(const std::string& request, bool sub_request)
 	{
 		throw std::runtime_error("Table name must include mask column name for sub-requests");
 	}
+	if (!sort_column.empty() && sub_request)
+	{
+		throw std::runtime_error("Sorting in sub-request is not supported");
+	}
 
 	if (!sub_request)
 	{
 		m_db.GetTableByName(table_name);
 		m_table = table_name;
+		m_sort_column = sort_column;
+		m_sort_mode = sort_mode;
 	}
 
 	std::string filter_column;
-	if (sm[3].matched)
+	if (sm[FILTER_COLUMN_I].matched)
 	{
-		filter_column = sm[3].str();
+		filter_column = sm[FILTER_COLUMN_I].str();
 		if (!sub_request)
 		{
 			m_has_filter = true;
@@ -81,7 +120,7 @@ void SelectionRequestParser::parse(const std::string& request, bool sub_request)
 		}
 
 		std::smatch sm1;
-		std::string filter_value = sm[4].str();
+		std::string filter_value = sm[FILTER_VALUE_I].str();
 		if (std::regex_match(filter_value, sm1, g_sub_request_regex))
 		{
 			parse(sm1[1].str(), true);

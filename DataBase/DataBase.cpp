@@ -78,10 +78,15 @@ std::shared_ptr<Selection> DataBase::Select(const std::string& request) const
 {
 	SelectionRequestParser selection_builder(*this, request);
 	std::string table_name;
+	std::string sort_by_column;
+	bool sort_ascending;
 	std::function<bool(const Table::row_type& row)> selector =
-		selection_builder.BuildSelector(table_name);
+		selection_builder.BuildSelector(table_name,
+										sort_by_column,
+										sort_ascending);
 
 	Table::selection_type result;
-	GetTableByName(table_name)->SelectRows(result, selector);
+	GetTableByName(table_name)->SelectRows(result, selector, 
+										   sort_by_column, sort_ascending);
 	return std::shared_ptr<Selection>(new Selection(result));
 }
