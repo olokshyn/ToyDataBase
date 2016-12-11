@@ -121,6 +121,7 @@
     <ClInclude Include="Table.h" />
     <ClInclude Include="TypeManager.h" />
     <ClInclude Include="TypeNames.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DataBase.cpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="Table.cpp" />
     <ClCompile Include="TypeManager.cpp" />
     <ClCompile Include="TypeNames.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

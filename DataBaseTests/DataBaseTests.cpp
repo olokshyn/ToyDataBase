@@ -305,5 +305,42 @@ namespace DataBaseTests
 			});
 			Assert::AreEqual(6, i);
 		}
+
+		TEST_METHOD(DataBaseSaveAndLoad)
+		{
+			DataBase db;
+
+			db.AddTable("books", { { "id", "Int" },{ "year", "Int" },{ "author", "String" } });
+			std::vector<Table::row_type> books_rows =
+			{
+				{ "1", "1892", "Crafter" },
+				{ "2", "1965", "Jones" },
+				{ "3", "2004", "Springer" },
+				{ "4", "1832", "Bafers" }
+			};
+			for (const Table::row_type& row : books_rows)
+			{
+				db.AddRow("books", row);
+			}
+
+			db.AddTable("students", { { "name", "String" },{ "book_id", "Int" } });
+			std::vector<Table::row_type> students_rows =
+			{
+				{ "Franklin", "2" },
+				{ "Jobs", "3" },
+				{ "Trump", "1" },
+				{ "White", "4" }
+			};
+			for (const Table::row_type& row : students_rows)
+			{
+				db.AddRow("students", row);
+			}
+
+			db.Save("BooksDB");
+
+			DataBase db2("BooksDB");
+
+			Assert::IsTrue(db == db2, L"Failed to Save/Load database");
+		}
 	};
 }

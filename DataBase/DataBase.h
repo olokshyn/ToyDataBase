@@ -13,8 +13,15 @@ extern std::unique_ptr<const TypeManager> g_type_manager;  // multithreading haz
 
 class DataBase
 {
+	friend bool operator==(const DataBase& left, const DataBase& right);
+	friend bool operator!=(const DataBase& left, const DataBase& right);
+
 public:
 	DataBase();
+	explicit DataBase(const std::string& db_root);
+
+	void Save(const std::string& db_root);
+	void Load(const std::string& db_root);
 
 	void GetTypeNames(std::vector<std::string>& type_names) const
 	{
@@ -44,3 +51,5 @@ private:
 	map_type m_tables;
 };
 
+bool operator==(const DataBase& left, const DataBase& right);
+bool operator!=(const DataBase& left, const DataBase& right);

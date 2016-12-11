@@ -3,13 +3,18 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <iostream>
 #include <functional>
 
 #include "BaseType.h"
+#include "TypeManager.h"
 #include "Column.h"
 
 class Table
 {
+	friend bool operator==(const Table& left, const Table& right);
+	friend bool operator!=(const Table& left, const Table& right);
+
 public:
 	typedef std::vector<std::string> row_type;
 	typedef std::vector<Column> columns_type;
@@ -18,6 +23,11 @@ public:
 
 public:
 	explicit Table(const std::vector<Column>& columns);
+	Table(std::istream& stream, const TypeManager* type_manager);
+
+	void SaveToStream(std::ostream& stream, 
+					  const TypeManager* type_manager) const;
+	void LoadFromStream(std::istream& stream, const TypeManager* type_manager);
 
 	const columns_type& GetColumns() const
 	{
@@ -57,6 +67,9 @@ private:
 	Table& operator=(const Table& right);
 
 private:
-	const columns_type m_columns;
+	columns_type m_columns;
 	std::list<row_type> m_rows;
 };
+
+bool operator==(const Table& left, const Table& right);
+bool operator!=(const Table& left, const Table& right);
