@@ -19,13 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F7CAA7A0-A96B-41CF-A402-B5C537EE6CB3}</ProjectGuid>
-    <RootNamespace>DataBase</RootNamespace>
+    <ProjectGuid>{685D155F-F8A1-4AA1-8F39-C17D7E26B6C1}</ProjectGuid>
+    <RootNamespace>Client</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -38,7 +38,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -74,11 +74,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDIr)DataBase;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
@@ -110,30 +111,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BaseType.h" />
-    <ClInclude Include="Column.h" />
-    <ClInclude Include="DataBase.h" />
-    <ClInclude Include="FloatType.h" />
-    <ClInclude Include="IntType.h" />
-    <ClInclude Include="Selection.h" />
-    <ClInclude Include="SelectionRequestParser.h" />
-    <ClInclude Include="StringType.h" />
-    <ClInclude Include="Table.h" />
-    <ClInclude Include="TypeManager.h" />
-    <ClInclude Include="TypeNames.h" />
-    <ClInclude Include="Utils.h" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="MenuFabric.cpp" />
+    <ClCompile Include="MenuManager.cpp" />
+    <ClCompile Include="UIHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DataBase.cpp" />
-    <ClCompile Include="FloatType.cpp" />
-    <ClCompile Include="IntType.cpp" />
-    <ClCompile Include="Selection.cpp" />
-    <ClCompile Include="SelectionRequestParser.cpp" />
-    <ClCompile Include="StringType.cpp" />
-    <ClCompile Include="Table.cpp" />
-    <ClCompile Include="TypeManager.cpp" />
-    <ClCompile Include="TypeNames.cpp" />
-    <ClCompile Include="Utils.cpp" />
+    <ProjectReference Include="..\DataBase\DataBase.vcxproj">
+      <Project>{f7caa7a0-a96b-41cf-a402-b5c537ee6cb3}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Context.h" />
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="MenuFabric.h" />
+    <ClInclude Include="MenuManager.h" />
+    <ClInclude Include="UIHelpers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

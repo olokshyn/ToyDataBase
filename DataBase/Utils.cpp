@@ -28,6 +28,19 @@ std::istream& Utils::ReadLine(std::istream& stream,
 	return stream;
 }
 
+void Utils::SplitByPairs(const std::vector<std::string>& words,
+						 std::vector< std::pair<std::string, std::string> >& pairs)
+{
+	if (words.size() % 2 != 0)
+	{
+		throw std::runtime_error("Words count must be even");
+	}
+	for (size_t i = 0; i != words.size(); i += 2)
+	{
+		pairs.push_back(std::make_pair(words[i], words[i + 1]));
+	}
+}
+
 bool Utils::FileExists(const std::string& file)
 {
 	DWORD fileAttrs = GetFileAttributes(file.c_str());

@@ -20,6 +20,10 @@ DataBase::DataBase()
 
 DataBase::DataBase(const std::string& db_root)
 {
+	if (!g_type_manager)
+	{
+		g_type_manager.reset(new TypeManager);
+	}
 	Load(db_root);
 }
 
@@ -142,9 +146,9 @@ std::shared_ptr<Selection> DataBase::Select(const std::string& request) const
 										sort_ascending);
 
 	Table::selection_type result;
-	GetTableByName(table_name)->SelectRows(result, selector, 
-										   sort_by_column, sort_ascending);
-	return std::shared_ptr<Selection>(new Selection(result));
+	const Table* table = GetTableByName(table_name);
+	table->SelectRows(result, selector, sort_by_column, sort_ascending);
+	return std::shared_ptr<Selection>(new Selection(table, result));
 }
 
 bool operator==(const DataBase& left, const DataBase& right)

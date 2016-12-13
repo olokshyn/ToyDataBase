@@ -9,6 +9,8 @@ namespace Utils
 {
 	std::istream& ReadLine(std::istream& stream,
 						   std::vector<std::string>& words);
+	void SplitByPairs(const std::vector<std::string>& words,
+					  std::vector< std::pair<std::string, std::string> >& pairs);
 
 	bool FileExists(const std::string& file);
 	bool DirExists(const std::string& dir);

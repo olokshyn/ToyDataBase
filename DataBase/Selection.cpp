@@ -2,8 +2,10 @@
 
 
 
-Selection::Selection(const Table::selection_type& selection_result)
-	: m_selection(selection_result)
+Selection::Selection(const Table* table,
+					 const Table::selection_type& selection_result)
+	: m_table(table),
+	m_selection(selection_result)
 {
 }
 
